@@ -8,12 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@ktibow/iconset-material-symbols':
+        specifier: ^0.0.1725600996
+        version: 0.0.1725600996
       dreamland:
         specifier: ^0.0.24
         version: 0.0.24
       dreamland-router:
         specifier: https://github.com/mercuryworkshop/dreamland-router
         version: https://codeload.github.com/mercuryworkshop/dreamland-router/tar.gz/4a5bb22dbaa1268159a8e3485200d1d7372483be
+      m3-dreamland:
+        specifier: github:mercuryworkshop/m3-dreamland
+        version: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/95698057785bd028889dda5bf688b4d764a4ddd0
       rollup-plugin-typescript2:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.22.4)(typescript@5.6.2)
@@ -21,6 +27,9 @@ importers:
         specifier: ^1.2.0
         version: 1.2.1
     devDependencies:
+      '@iconify/types':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@types/node':
         specifier: ^22.7.0
         version: 22.7.0
@@ -177,6 +186,18 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@iconify/types@2.0.0':
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
+
+  '@ktibow/iconset-material-symbols@0.0.1717653083':
+    resolution: {integrity: sha512-BgBEmUTwJ6UCS4qb72ciB/JbJndnUG9sPaPqY9krai6YNsE2On7lw/uk79VSS47HXbwEGuxOE1oT2xIbNmYU6A==}
+
+  '@ktibow/iconset-material-symbols@0.0.1725600996':
+    resolution: {integrity: sha512-sCT8xZfiuzQ4uQngKfIWX+2sdSjPMGONK5gcPY3epISdWhGCV5Aa66yAjT//hHptkwvNAtqhdkjQlHgD9hS0qQ==}
+
+  '@material/material-color-utilities@0.3.0':
+    resolution: {integrity: sha512-ztmtTd6xwnuh2/xu+Vb01btgV8SQWYCaK56CkRK8gEkWe5TuDyBcYJ0wgkMRn+2VcE9KUmhvkz+N9GHrqw/C0g==}
+
   '@rollup/pluginutils@4.2.1':
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
     engines: {node: '>= 8.0.0'}
@@ -328,6 +349,10 @@ packages:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
 
+  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/95698057785bd028889dda5bf688b4d764a4ddd0:
+    resolution: {tarball: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/95698057785bd028889dda5bf688b4d764a4ddd0}
+    version: 0.0.1
+
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
@@ -429,6 +454,10 @@ packages:
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
+
+  uuid@10.0.0:
+    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
 
   vite-plugin-dreamland@1.2.1:
     resolution: {integrity: sha512-u/CdHcqUet9ejU0N1e4RqtK8NyQR+QUf5AWppbuBe+Cde3qjnYQ2NS56nErBW56Qc0hfxXq/KT3cRTmhGBZ5Ow==}
@@ -552,6 +581,18 @@ snapshots:
 
   '@esbuild/win32-x64@0.21.5':
     optional: true
+
+  '@iconify/types@2.0.0': {}
+
+  '@ktibow/iconset-material-symbols@0.0.1717653083':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@ktibow/iconset-material-symbols@0.0.1725600996':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@material/material-color-utilities@0.3.0': {}
 
   '@rollup/pluginutils@4.2.1':
     dependencies:
@@ -688,6 +729,12 @@ snapshots:
     dependencies:
       p-locate: 4.1.0
 
+  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/95698057785bd028889dda5bf688b4d764a4ddd0:
+    dependencies:
+      '@ktibow/iconset-material-symbols': 0.0.1717653083
+      '@material/material-color-utilities': 0.3.0
+      uuid: 10.0.0
+
   make-dir@3.1.0:
     dependencies:
       semver: 6.3.1
@@ -783,6 +830,8 @@ snapshots:
   undici-types@6.19.8: {}
 
   universalify@2.0.1: {}
+
+  uuid@10.0.0: {}
 
   vite-plugin-dreamland@1.2.1: {}
 
