@@ -1,11 +1,16 @@
 import { defineConfig } from 'vite';
 import { dreamlandPlugin } from 'vite-plugin-dreamland';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 import fs from 'fs';
 import wbn from 'rollup-plugin-webbundle';
 import * as wbnSign from 'wbn-sign';
 
-const plugins = [dreamlandPlugin()];
+const plugins = [dreamlandPlugin(), viteStaticCopy({
+	targets: [
+		{ src: "rust/pkg/wisp_iwa_rust_bg.wasm", dest: "" },
+	]
+})];
 
 if (process.env.NODE_ENV === 'production') {
 	const key = wbnSign.parsePemKey(

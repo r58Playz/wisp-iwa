@@ -1,5 +1,5 @@
 {
-  "name": "create-dreamland-app",
+  "name": "wisp-iwa",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -22,6 +22,7 @@
     "rollup-plugin-webbundle": "^0.2.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
+    "vite-plugin-static-copy": "^1.0.6",
     "wbn-sign": "^0.2.1"
   }
 }
