@@ -15,7 +15,10 @@
     "vite-plugin-dreamland": "^1.2.0"
   },
   "devDependencies": {
+    "@types/node": "^22.7.0",
+    "rollup-plugin-webbundle": "^0.2.0",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "wbn-sign": "^0.2.1"
   }
 }

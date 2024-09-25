@@ -1,0 +1,22 @@
+{
+	"id": "/",
+	"name": "Wisp IWA",
+	"version": "0.0.0",
+	"start_url": "/",
+	"display": "standalone",
+	"scope": "/",
+	"isolated_storage": true,
+	"icons": [
+		{
+			"src": "/icon.webp",
+			"type": "image/webp",
+			"sizes": "512x512",
+			"purpose": "any maskable"
+		}
+	],
+	"permissions_policy": {
+		"direct-sockets": [
+			"self"
+		]
+	}
+}
