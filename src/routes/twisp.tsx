@@ -2,7 +2,10 @@ import Term, { ReadPort, ResizeClosure, WriteClosure } from "../term";
 // @ts-ignore
 import { Tabs } from "m3-dreamland";
 
-const Twisp: Component<{}, { terms: [string, ReadPort, WriteClosure, ResizeClosure][], currentTerm: string }> = function() {
+const Twisp: Component<{}, {
+	terms: { name: string, id: string, read: ReadPort, write: WriteClosure, resize: ResizeClosure }[],
+	currentTerm: string
+}> = function() {
 	this.css = `
 		height: 100%;
 		display: flex;
@@ -21,7 +24,7 @@ const Twisp: Component<{}, { terms: [string, ReadPort, WriteClosure, ResizeClosu
 
 	this.mount = async () => {
 		// test code until i hook up wisp: `websocat ws-listen:127.0.0.1:5000 cmd:'cat' --binary`
-		for (const _ of [1, 2, 3]) {
+		for (const x of [1, 2, 3]) {
 			const ws = new WebSocket("ws://localhost:5193/test");
 			ws.binaryType = 'arraybuffer';
 			const channel = new MessageChannel();
@@ -32,7 +35,13 @@ const Twisp: Component<{}, { terms: [string, ReadPort, WriteClosure, ResizeClosu
 			const resize = (c: number, r: number) => { };
 			const symbol = crypto.randomUUID();
 			this.currentTerm = symbol;
-			this.terms = [...this.terms, [symbol, channel.port2, write, resize]];
+			this.terms = [...this.terms, {
+				name: "Terminal " + x,
+				id: symbol,
+				read: channel.port2,
+				write: write,
+				resize: resize
+			}];
 		}
 	}
 
@@ -40,13 +49,13 @@ const Twisp: Component<{}, { terms: [string, ReadPort, WriteClosure, ResizeClosu
 		<div>
 			<Tabs
 				primary={true}
-				bind:items={use(this.terms, x => x.map(([sym]) => { return { name: "Terminal", value: sym } }))}
+				bind:items={use(this.terms, x => x.map(({ name, id }) => { return { name: name, value: id } }))}
 				bind:tab={use(this.currentTerm)}
 			/>
-			{use(this.terms, x => x.map(([sym, r, w, resize]) => {
+			{use(this.terms, x => x.map(({ id, read, write, resize }) => {
 				return (
-					<div class={use`terminal ${use(this.currentTerm, x => x === sym ? "" : "inactive")}`}>
-						<Term read={r} write={w} resize={resize} />
+					<div class={use`terminal ${use(this.currentTerm, x => x === id ? "" : "inactive")}`}>
+						<Term read={read} write={write} resize={resize} />
 					</div>
 				);
 			}))}

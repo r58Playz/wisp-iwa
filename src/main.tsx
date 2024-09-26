@@ -1,5 +1,4 @@
 import 'dreamland/dev';
-import { Route, Router } from 'dreamland-router';
 import type { IconifyIcon } from "@iconify/types";
 
 import iconInsertChart from "@ktibow/iconset-material-symbols/insert-chart";
@@ -21,9 +20,11 @@ import Settings from './routes/settings';
 import Twisp from './routes/twisp';
 import Ports from './routes/ports';
 
+// @ts-ignore
 if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
+	// @ts-ignore
 	window.trustedTypes.createPolicy('default', {
-		createHTML: string => string
+		createHTML: (x: string) => x
 	});
 }
 
@@ -183,12 +184,9 @@ const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, b
 	);
 }
 
-window.addEventListener('load', () => {
-	try {
-		document.getElementById('app')!.replaceWith(<App />);
-	} catch (err) {
-		document.getElementById('app')!.replaceWith(document.createTextNode("Error while rendering: " + err));
-		console.error(err);
-	}
-});
-
+try {
+	document.getElementById('app')!.replaceWith(<App />);
+} catch (err) {
+	document.getElementById('app')!.replaceWith(document.createTextNode("Error while rendering: " + err));
+	console.error(err);
+}
