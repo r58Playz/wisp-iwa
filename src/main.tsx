@@ -27,17 +27,10 @@ if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTy
 	});
 }
 
-const Layout: Component<{
-	outlet: HTMLElement,
-	routeshow: (path: string) => void,
-	routeshown: boolean
-}, {
-	currentpath: string,
-	routes: { path: string, sicon: IconifyIcon, icon: IconifyIcon, label: string }[],
+const Layout: Component<{}, {
+	currentPath: string,
+	routes: { path: string, sicon: IconifyIcon, icon: IconifyIcon, label: string, el: HTMLElement }[],
 }> = function() {
-	this.routeshow = (path) => {
-		this.currentpath = path;
-	};
 	this.css = `
 		display: flex;
 		min-height: 100vh;
@@ -55,16 +48,12 @@ const Layout: Component<{
 			min-width: 0;
 		}
 
-		.content:has(.loading) {
-			display: flex;
-			align-items: center;
-			justify-content: center;
+		.view {
+			width: 100%;
+			height: 100%;
 		}
-
-		.loading {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+		.inactive {
+			display: none;
 		}
 
 		@media (width < 37.5rem) {
@@ -111,26 +100,31 @@ const Layout: Component<{
 			icon: iconInsertChartOutline,
 			sicon: iconInsertChart,
 			label: "Status",
+			el: <Status />
 		},
 		{
 			path: "twisp",
 			icon: iconCodeBlocksOutline,
 			sicon: iconCodeBlocks,
 			label: "Terminals",
+			el: <Twisp />
 		},
 		{
 			path: "ports",
 			icon: iconLanOutline,
 			sicon: iconLan,
 			label: "Ports",
+			el: <Ports />
 		},
 		{
 			path: "settings",
 			icon: iconSettingsOutline,
 			sicon: iconSettings,
 			label: "Settings",
+			el: <Settings />
 		},
 	];
+	this.currentPath = "status";
 
 	return (
 		<div>
@@ -140,9 +134,9 @@ const Layout: Component<{
 						{this.routes.map(x => {
 							return (
 								<NavListButton
-									bind:icon={use(this.currentpath, y => y === x.path ? x.sicon : x.icon)}
-									bind:selected={use(this.currentpath, y => y === x.path)}
-									on:click={() => router.navigate(x.path)}
+									bind:icon={use(this.currentPath, y => y === x.path ? x.sicon : x.icon)}
+									bind:selected={use(this.currentPath, y => y === x.path)}
+									on:click={() => this.currentPath = x.path}
 								>
 									{x.label}
 								</NavListButton>
@@ -152,31 +146,17 @@ const Layout: Component<{
 				</NavList>
 			</div>
 			<div class="content">
-				{use(this.outlet)}
+				{this.routes.map(route => {
+					return (
+						<div class={use`view ${use(this.currentPath, x => x === route.path ? "" : "inactive")}`}>
+							{route.el}
+						</div>
+					)
+				})}
 			</div>
 		</div>
 	)
 }
-
-const NotFound: Component<{}, {}> = function() {
-	return (
-		<div>
-			404
-		</div>
-	)
-}
-
-let router = new Router(
-	<Route>
-		<Route path="" show={<Layout />}>
-			<Route path="status" show={<Status />} />
-			<Route path="twisp" show={<Twisp />} />
-			<Route path="ports" show={<Ports />} />
-			<Route path="settings" show={<Settings />} />
-		</Route>
-		<Route path="*" show={<NotFound />} />
-	</Route>
-)
 
 const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, bgColor: string }> = function() {
 	this.css = `
@@ -184,12 +164,9 @@ const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, b
 			background-color: rgb(var(--m3-scheme-background));
 		}
 	`;
-	this.mount = () => {
-		router.mount(this.renderRoot);
-	}
 
-	useChange([use(settings.lightTheme), use(settings.darkTheme)], ()=>{
-		setTimeout(()=>{
+	useChange([use(settings.lightTheme), use(settings.darkTheme)], () => {
+		setTimeout(() => {
 			this.bgColor = getComputedStyle(this.backgroundEl).backgroundColor;
 		}, 10);
 	});
@@ -201,7 +178,7 @@ const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, b
 			<Styles
 				bind:light={use(settings.lightTheme)}
 				bind:dark={use(settings.darkTheme)} />
-			<div bind:this={use(this.renderRoot)} />
+			<Layout />
 		</div>
 	);
 }

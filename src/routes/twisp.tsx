@@ -1,7 +1,8 @@
 import Term, { ReadPort, ResizeClosure, WriteClosure } from "../term";
+// @ts-ignore
 import { Tabs } from "m3-dreamland";
 
-const Twisp: Component<{ terms: [string, ReadPort, WriteClosure, ResizeClosure][], currentTerm: string }, {}> = function() {
+const Twisp: Component<{}, { terms: [string, ReadPort, WriteClosure, ResizeClosure][], currentTerm: string }> = function() {
 	this.css = `
 		height: 100%;
 		display: flex;
@@ -33,14 +34,21 @@ const Twisp: Component<{ terms: [string, ReadPort, WriteClosure, ResizeClosure][
 			this.currentTerm = symbol;
 			this.terms = [...this.terms, [symbol, channel.port2, write, resize]];
 		}
-		console.log(this.terms);
 	}
 
 	return (
 		<div>
-			<Tabs primary={true} bind:items={use(this.terms, x => x.map(([sym]) => { return { name: "Terminal", value: sym } }))} bind:tab={use(this.currentTerm)} />
+			<Tabs
+				primary={true}
+				bind:items={use(this.terms, x => x.map(([sym]) => { return { name: "Terminal", value: sym } }))}
+				bind:tab={use(this.currentTerm)}
+			/>
 			{use(this.terms, x => x.map(([sym, r, w, resize]) => {
-				return <div class={use`terminal ${use(this.currentTerm, x => x === sym ? "" : "inactive")}`}><Term read={r} write={w} resize={resize} /></div>
+				return (
+					<div class={use`terminal ${use(this.currentTerm, x => x === sym ? "" : "inactive")}`}>
+						<Term read={r} write={w} resize={resize} />
+					</div>
+				);
 			}))}
 		</div>
 	);

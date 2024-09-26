@@ -14,9 +14,6 @@ importers:
       dreamland:
         specifier: ^0.0.24
         version: 0.0.24
-      dreamland-router:
-        specifier: https://github.com/mercuryworkshop/dreamland-router
-        version: https://codeload.github.com/mercuryworkshop/dreamland-router/tar.gz/4a5bb22dbaa1268159a8e3485200d1d7372483be
       m3-dreamland:
         specifier: github:mercuryworkshop/m3-dreamland
         version: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/95698057785bd028889dda5bf688b4d764a4ddd0
@@ -337,10 +334,6 @@ packages:
 
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
-
-  dreamland-router@https://codeload.github.com/mercuryworkshop/dreamland-router/tar.gz/4a5bb22dbaa1268159a8e3485200d1d7372483be:
-    resolution: {tarball: https://codeload.github.com/mercuryworkshop/dreamland-router/tar.gz/4a5bb22dbaa1268159a8e3485200d1d7372483be}
-    version: 2.0.0
 
   dreamland@0.0.24:
     resolution: {integrity: sha512-yHRqSr5sfQhMZTiVAlRrXB3WmxjCfuCg4RZbnD4uaXekJvqagmhmjLervW1ke2Z0NyQTkrrDXHUgnwy9UySnNA==}
@@ -801,8 +794,6 @@ snapshots:
   commander@7.2.0: {}
 
   commondir@1.0.1: {}
-
-  dreamland-router@https://codeload.github.com/mercuryworkshop/dreamland-router/tar.gz/4a5bb22dbaa1268159a8e3485200d1d7372483be: {}
 
   dreamland@0.0.24: {}
 

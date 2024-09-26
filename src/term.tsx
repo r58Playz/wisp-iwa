@@ -1,6 +1,3 @@
-// @ts-ignore
-import { hterm } from "./hterm";
-
 export type ReadPort = MessagePort;
 export type WriteClosure = (data: Uint8Array) => void;
 export type ResizeClosure = (width: number, height: number) => void;

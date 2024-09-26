@@ -11,7 +11,6 @@
   "dependencies": {
     "@ktibow/iconset-material-symbols": "^0.0.1725600996",
     "dreamland": "^0.0.24",
-    "dreamland-router": "https://github.com/mercuryworkshop/dreamland-router",
     "m3-dreamland": "github:mercuryworkshop/m3-dreamland",
     "rollup-plugin-typescript2": "^0.36.0",
     "vite-plugin-dreamland": "^1.2.0"
