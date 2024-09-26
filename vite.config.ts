@@ -48,6 +48,13 @@ export default defineConfig({
 		},
 		headers: {
 			"permissions-policy": "direct-sockets"
+		},
+		proxy: {
+			"/test": {
+				target: "ws://127.0.0.1:5000",
+				ws: true,
+				rewriteWsOrigin: true,
+			}
 		}
 	},
 	base: "./",

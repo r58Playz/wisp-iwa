@@ -1,0 +1,37 @@
+// @ts-ignore
+import { hterm } from "./hterm";
+
+export type ReadPort = MessagePort;
+export type WriteClosure = (data: Uint8Array) => void;
+export type ResizeClosure = (width: number, height: number) => void;
+
+const Term: Component<
+	{ read: MessagePort, write: WriteClosure, resize: ResizeClosure },
+	{}
+> = function() {
+	this.css = `
+		border: none;
+		width: 100%;
+		height: 100%;
+	`;
+	const channel = new MessageChannel();
+	this.mount = () => {
+		this.root.addEventListener("load", () => {
+			channel.port1.onmessage = (e) => {
+				if (e.data.type === "data") {
+					this.write(e.data.data);
+				} else if (e.data.type === "resize") {
+					this.resize(e.data.cols, e.data.rows);
+				}
+			};
+			(this.root as HTMLIFrameElement).contentWindow?.postMessage(channel.port2, { transfer: [channel.port2] });
+			this.read.onmessage = (e) => {
+				channel.port1.postMessage({ type: "data", data: e.data });
+			};
+		});
+	}
+
+	return <iframe src="/hterm.html" />
+};
+
+export default Term;
