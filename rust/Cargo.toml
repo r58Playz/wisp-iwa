@@ -7,4 +7,15 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+anyhow = "1.0.89"
+async-trait = "0.1.83"
+bytes = "1.7.2"
+event-listener = "5.3.1"
+flume = "0.11.0"
+futures-util = "0.3.30"
+js-sys = "0.3.70"
+send_wrapper = "0.6.0"
 wasm-bindgen = "0.2.93"
+wasm-bindgen-futures = "0.4.43"
+web-sys = { version = "0.3.70", features = ["BinaryType", "MessageEvent", "WebSocket"] }
+wisp-mux = { git = "https://github.com/mercuryworkshop/epoxy-tls", version = "5.1.0", features = ["wasm"] }

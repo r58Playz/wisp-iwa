@@ -1,6 +1,4 @@
-import { hi, initWasm } from "../wasm";
-
-await initWasm();
+import { hi } from "../wasm";
 
 const Status: Component<{}, {}> = function() {
 	return (

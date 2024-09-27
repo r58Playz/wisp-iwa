@@ -22,6 +22,11 @@ const Twisp: Component<{}, {
 
 	this.terms = [];
 
+	const self = this;
+	function remove_term(term_id: string) {
+		self.terms = self.terms.filter(({ id }) => id !== term_id);
+	}
+
 	this.mount = async () => {
 		// test code until i hook up wisp: `websocat ws-listen:127.0.0.1:5000 cmd:'cat' --binary`
 		for (const x of [1, 2, 3]) {
@@ -34,6 +39,7 @@ const Twisp: Component<{}, {
 			const write = (e: Uint8Array) => ws.send(e);
 			const resize = (c: number, r: number) => { };
 			const symbol = crypto.randomUUID();
+			ws.onclose = () => { remove_term(symbol) };
 			this.currentTerm = symbol;
 			this.terms = [...this.terms, {
 				name: "Terminal " + x,
