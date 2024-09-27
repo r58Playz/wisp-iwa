@@ -1,10 +1,13 @@
 import Term, { ReadPort, ResizeClosure, WriteClosure } from "../term";
 // @ts-ignore
-import { Tabs } from "m3-dreamland";
+import { Tabs, TextField, Button, Icon } from "m3-dreamland";
+import iconAdd from "@ktibow/iconset-material-symbols/add";
+import { settings } from "../store";
+import { create_twisp, status } from "../wasm";
 
 const Twisp: Component<{}, {
-	terms: { name: string, id: string, read: ReadPort, write: WriteClosure, resize: ResizeClosure }[],
-	currentTerm: string
+	terms: { name: string, id: number, read: ReadPort, write: WriteClosure, resize: ResizeClosure }[],
+	currentTerm: number
 }> = function() {
 	this.css = `
 		height: 100%;
@@ -18,53 +21,67 @@ const Twisp: Component<{}, {
 		.inactive {
 			display: none;
 		}
+
+		.create {
+			display: flex;
+			flex-direction: row;
+			gap: 1em;
+			align-items: center;
+		}
+
+		.create > span:has(.TextField-m3-container) {
+			flex: 1;
+		}
+		.TextField-m3-container {
+			width: 100%;
+		}
+
+		.empty {
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
 	`;
 
 	this.terms = [];
 
 	const self = this;
-	function remove_term(term_id: string) {
+	function remove_term(term_id: number) {
 		self.terms = self.terms.filter(({ id }) => id !== term_id);
 	}
 
-	this.mount = async () => {
-		// test code until i hook up wisp: `websocat ws-listen:127.0.0.1:5000 cmd:'cat' --binary`
-		for (const x of [1, 2, 3]) {
-			const ws = new WebSocket("ws://localhost:5193/test");
-			ws.binaryType = 'arraybuffer';
-			const channel = new MessageChannel();
-			ws.onmessage = (e) => {
-				channel.port1.postMessage(e.data);
+	async function create_term() {
+		const term = await create_twisp(settings.termPath);
+		term.read.addEventListener("message", (e)=>{
+			if (e.data.type === "close") {
+				remove_term(term.id);
 			}
-			const write = (e: Uint8Array) => ws.send(e);
-			const resize = (c: number, r: number) => { };
-			const symbol = crypto.randomUUID();
-			ws.onclose = () => { remove_term(symbol) };
-			this.currentTerm = symbol;
-			this.terms = [...this.terms, {
-				name: "Terminal " + x,
-				id: symbol,
-				read: channel.port2,
-				write: write,
-				resize: resize
-			}];
-		}
+		});
+		self.terms = [...self.terms, { read: term.read, write: term.write, resize: term.resize, id: term.id, name: "Stream ID " + term.id }]
+		self.currentTerm = term.id;
 	}
 
 	return (
 		<div>
-			<Tabs
-				primary={true}
-				bind:items={use(this.terms, x => x.map(({ name, id }) => { return { name: name, value: id } }))}
-				bind:tab={use(this.currentTerm)}
-			/>
-			{use(this.terms, x => x.map(({ id, read, write, resize }) => {
-				return (
-					<div class={use`terminal ${use(this.currentTerm, x => x === id ? "" : "inactive")}`}>
-						<Term read={read} write={write} resize={resize} />
-					</div>
-				);
-			}))}
+			{$if(use(status.connected, x => !x), <div class="empty">Not connected</div>, <>
+				<div class="create">
+					<TextField bind:value={use(settings.termPath)} name="Command to execute" />
+					<Button type="tonal" iconType="left" on:click={create_term}><Icon icon={iconAdd} />New</Button>
+				</div>
+				<Tabs
+					primary={true}
+					bind:items={use(this.terms, x => x.map(({ name, id }) => { return { name: name, value: id } }))}
+					bind:tab={use(this.currentTerm)}
+				/>
+				{use(this.terms, x => x.map(({ id, read, write, resize }) => {
+					return (
+						<div class={use`terminal ${use(this.currentTerm, x => x === id ? "" : "inactive")}`}>
+							<Term read={read} write={write} resize={resize} />
+						</div>
+					);
+				}))}
+			</>)}
 		</div>
 	);
 };

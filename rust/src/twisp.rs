@@ -11,6 +11,8 @@ pub struct TWispClientProtocolExtension;
 
 impl TWispClientProtocolExtension {
     pub const ID: u8 = 0xF0;
+	pub const STREAM_TYPE: u8 = 0x03;
+	pub const PACKET_TYPE: u8 = 0xF0;
 
     pub fn create_resize_request(rows: u16, cols: u16) -> Bytes {
         let mut packet = BytesMut::with_capacity(4);
@@ -31,7 +33,7 @@ impl ProtocolExtension for TWispClientProtocolExtension {
     }
 
     fn get_congestion_stream_types(&self) -> &'static [u8] {
-        &[]
+        &[Self::STREAM_TYPE]
     }
 
     fn encode(&self) -> Bytes {

@@ -125,7 +125,7 @@ const Layout: Component<{}, {
 			el: <Settings />
 		},
 	];
-	this.currentPath = "status";
+	this.currentPath = "twisp";
 
 	return (
 		<div>

@@ -21,7 +21,7 @@ use anyhow::anyhow;
 #[derive(Debug)]
 pub enum WebSocketError {
 	Unknown,
-	SendFailed,
+	SendFailed(String),
 	CloseFailed,
 }
 
@@ -30,7 +30,7 @@ impl std::fmt::Display for WebSocketError {
 		use WebSocketError::*;
 		match self {
 			Unknown => write!(f, "Unknown error"),
-			SendFailed => write!(f, "Send failed"),
+			SendFailed(x) => write!(f, "Send failed: {:?}", x),
 			CloseFailed => write!(f, "Close failed"),
 		}
 	}
@@ -200,7 +200,7 @@ impl WebSocketWrite for WebSocketWrapper {
 			Binary | Text => self
 				.inner
 				.send_with_u8_array(&frame.payload)
-				.map_err(|_| WebSocketError::SendFailed.into()),
+				.map_err(|x| WebSocketError::SendFailed(format!("{:?}", x)).into()),
 			Close => {
 				let _ = self.inner.close();
 				Ok(())

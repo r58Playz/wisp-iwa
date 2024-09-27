@@ -51,7 +51,7 @@ export default defineConfig({
 		},
 		proxy: {
 			"/test": {
-				target: "ws://127.0.0.1:5000",
+				target: "ws://127.0.0.1:4000",
 				ws: true,
 				rewriteWsOrigin: true,
 			}

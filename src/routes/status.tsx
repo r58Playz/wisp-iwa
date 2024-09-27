@@ -1,11 +1,11 @@
-import { hi } from "../wasm";
+import { reconnect } from "../wasm";
 
 const Status: Component<{}, {}> = function() {
 	return (
 		<div>
 			<button on:click={async ()=>{
-				console.log(hi());
-			}}>test</button>
+				reconnect();
+			}}>connect</button>
 		</div>
 	);
 };
