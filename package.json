@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@ktibow/iconset-material-symbols": "^0.0.1725600996",
+    "@xterm/addon-clipboard": "^0.1.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/xterm": "^5.5.0",
     "dreamland": "^0.0.24",
     "m3-dreamland": "github:mercuryworkshop/m3-dreamland",
     "rollup-plugin-typescript2": "^0.36.0",

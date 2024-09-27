@@ -30,7 +30,7 @@ const Term: Component<
 		});
 	}
 
-	return <iframe src="/hterm.html" />
+	return <iframe src="/term.html" />
 };
 
 export default Term;
