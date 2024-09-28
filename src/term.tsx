@@ -1,3 +1,5 @@
+import { settings } from "./store";
+
 export type ReadPort = MessagePort;
 export type WriteClosure = (data: Uint8Array) => void;
 export type ResizeClosure = (cols: number, rows: number) => void;
@@ -21,7 +23,8 @@ const Term: Component<
 					this.resize(e.data.cols, e.data.rows);
 				}
 			};
-			(this.root as HTMLIFrameElement).contentWindow?.postMessage(channel.port2, { transfer: [channel.port2] });
+			const root = this.root as HTMLIFrameElement;
+			root.contentWindow!.postMessage({ port: channel.port2, fontFamily: settings.font }, { transfer: [channel.port2] });
 			this.read.onmessage = (e) => {
 				if (e.data.type === "data") {
 					channel.port1.postMessage({ type: "data", data: e.data.data });

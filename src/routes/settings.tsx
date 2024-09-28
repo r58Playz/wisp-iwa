@@ -119,6 +119,8 @@ const Settings: Component<{}, {}> = function() {
 					</div>
 				))}
 			</div>
+			<h2 class="m3-font-title-large">Terminal</h2>
+			<TextField bind:value={use(settings.font)} name="Font" />
 			<h2 class="m3-font-title-large">Material UI</h2>
 			<MaterialSettings />
 		</div>
