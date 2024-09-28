@@ -13,7 +13,7 @@ const portPromise: Promise<{ port: MessagePort, fontFamily: string }> = new Prom
 
 const { port, fontFamily } = await portPromise;
 
-const root = document.querySelector("#terminal")! as HTMLElement;
+const root = document.body;
 
 const term = new Terminal();
 const encoder = new TextEncoder();
@@ -32,6 +32,10 @@ term.onData((str) => {
 
 term.onResize(({ cols, rows }) => {
 	port.postMessage({ type: "resize", rows: rows, cols: cols });
+})
+
+term.onTitleChange((title) => {
+	port.postMessage({ type: "title", title: title });
 })
 
 term.open(root);

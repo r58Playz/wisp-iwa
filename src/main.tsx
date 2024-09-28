@@ -33,8 +33,8 @@ const Layout: Component<{}, {
 	routes: { path: string, sicon: IconifyIcon, icon: IconifyIcon, label: string, el: HTMLElement }[],
 }> = function() {
 	this.css = `
+		flex: 1;
 		display: flex;
-		min-height: 100vh;
 
 		.navbar {
 			position: sticky;
@@ -161,6 +161,10 @@ const Layout: Component<{}, {
 
 const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, bgColor: string }> = function() {
 	this.css = `
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+
 		.background {
 			background-color: rgb(var(--m3-scheme-background));
 		}
@@ -179,6 +183,7 @@ const App: Component<{}, { renderRoot: HTMLElement, backgroundEl: HTMLElement, b
 			<Styles
 				bind:light={use(settings.lightTheme)}
 				bind:dark={use(settings.darkTheme)} />
+
 			<Layout />
 		</div>
 	);

@@ -99,6 +99,7 @@ const Settings: Component<{}, {}> = function() {
 			color: rgb(var(--m3-scheme-error));
 		}
 	`;
+
 	const testUrl = (url: string) => {
 		try {
 			const parsed = new URL(url);
@@ -108,6 +109,7 @@ const Settings: Component<{}, {}> = function() {
 			return false;
 		}
 	};
+
 	return (
 		<div>
 			<h1 class="m3-font-headline-medium">Settings</h1>

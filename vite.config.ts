@@ -47,7 +47,7 @@ export default defineConfig({
 			clientPort: 5193,
 		},
 		headers: {
-			"permissions-policy": "direct-sockets"
+			"permissions-policy": "direct-sockets=self"
 		},
 		proxy: {
 			"/test": {

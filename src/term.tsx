@@ -3,9 +3,10 @@ import { settings } from "./store";
 export type ReadPort = MessagePort;
 export type WriteClosure = (data: Uint8Array) => void;
 export type ResizeClosure = (cols: number, rows: number) => void;
+export type RenameClosure = (title: string) => void;
 
 const Term: Component<
-	{ read: MessagePort, write: WriteClosure, resize: ResizeClosure },
+	{ read: MessagePort, write: WriteClosure, resize: ResizeClosure, rename: RenameClosure },
 	{}
 > = function() {
 	this.css = `
@@ -21,6 +22,8 @@ const Term: Component<
 					this.write(e.data.data);
 				} else if (e.data.type === "resize") {
 					this.resize(e.data.cols, e.data.rows);
+				} else if (e.data.type === "title") {
+					this.rename(e.data.title);
 				}
 			};
 			const root = this.root as HTMLIFrameElement;
