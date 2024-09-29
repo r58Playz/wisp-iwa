@@ -1,6 +1,6 @@
 # wisp-iwa
-Wisp client in an Isolated Web App.
-Requires the server to support Wisp V2 with the UDP and twisp protocol extensions.
+[Wisp protocol](https://github.com/MercuryWorkshop/wisp-protocol) client in an [Isolated Web App](https://github.com/WICG/isolated-web-apps).
+Requires the server to support [Wisp V2](https://github.com/WICG/isolated-web-apps) with the UDP and twisp protocol extensions.
 
 ## Running 
 - `pnpm i`
