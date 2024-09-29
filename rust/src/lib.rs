@@ -39,21 +39,21 @@ pub fn object_set(obj: &Object, key: &JsValue, value: &JsValue) {
 pub struct WispIwa {
     url: String,
     mux: Arc<Mutex<Option<ClientMux>>>,
-	disconnect: Function,
+    disconnect: Function,
 }
 
 #[wasm_bindgen]
 impl WispIwa {
-	#[wasm_bindgen(js_name = "close")]
-	pub async fn close_wbg(&self) -> Result<(), JsError> {
-		self.close().await.map_err(jserror)
-	}
-	async fn close(&self) -> anyhow::Result<()> {
-		if let Some(mux) = self.mux.lock().await.as_ref() {
-			mux.close().await?;
-		}
-		Ok(())
-	}
+    #[wasm_bindgen(js_name = "close")]
+    pub async fn close_wbg(&self) -> Result<(), JsError> {
+        self.close().await.map_err(jserror)
+    }
+    async fn close(&self) -> anyhow::Result<()> {
+        if let Some(mux) = self.mux.lock().await.as_ref() {
+            mux.close().await?;
+        }
+        Ok(())
+    }
 
     #[wasm_bindgen(js_name = "replace_mux")]
     pub async fn replace_mux_wbg(&self) -> Result<(), JsError> {
@@ -66,9 +66,9 @@ impl WispIwa {
         mut locked: MutexGuard<'_, Option<ClientMux>>,
     ) -> anyhow::Result<()> {
         let (tx, rx) = WebSocketWrapper::connect(&self.url, &[])?;
-		if !tx.wait_for_open().await {
-			bail!("ws failed to connect");
-		}
+        if !tx.wait_for_open().await {
+            bail!("ws failed to connect");
+        }
 
         let (mux, fut) = ClientMux::create(
             rx,
@@ -84,11 +84,14 @@ impl WispIwa {
 
         locked.replace(mux);
         let arc_mux = self.mux.clone();
-		let disconnect_handler = self.disconnect.clone();
+        let disconnect_handler = self.disconnect.clone();
         spawn_local(async move {
             let ret = fut.await;
             arc_mux.lock().await.take();
-			let _ = disconnect_handler.call1(&JsValue::UNDEFINED, &format!("{:?}", ret).to_string().into());
+            let _ = disconnect_handler.call1(
+                &JsValue::UNDEFINED,
+                &format!("{:?}", ret).to_string().into(),
+            );
         });
 
         Ok(())
@@ -113,6 +116,42 @@ impl WispIwa {
         .await
     }
 
+    #[wasm_bindgen(js_name = "new_tcp")]
+    pub async fn new_tcp_wbg(&self, host: String, port: u16) -> Result<Object, JsError> {
+        self.new_tcp(host, port).await.map_err(jserror)
+    }
+    async fn new_tcp(&self, host: String, port: u16) -> anyhow::Result<Object> {
+        let stream = self.get_stream(StreamType::Tcp, host, port).await?;
+        let id = stream.stream_id;
+        let (rx, tx) = stream.into_io().into_split();
+
+        let readable = ReadableStream::from_stream(
+            rx.map_ok(|x| Uint8Array::from(x.as_ref()).into())
+                .map_err(|x| JsError::from(x).into()),
+        )
+        .into_raw();
+
+        let writable = WritableStream::from_sink(
+            tx.with(|x: JsValue| async {
+                Ok(BytesMut::from(
+                    x.dyn_into::<Uint8Array>()
+                        .map_err(|_| anyhow!("invalid payload"))?
+                        .to_vec()
+                        .as_slice(),
+                ))
+            })
+            .sink_map_err(|x: anyhow::Error| JsError::from(&*x).into()),
+        )
+        .into_raw();
+
+        let obj = Object::new();
+        object_set(&obj, &"read".into(), &readable);
+        object_set(&obj, &"write".into(), &writable);
+        object_set(&obj, &"id".into(), &id.into());
+
+        Ok(obj)
+    }
+
     #[wasm_bindgen(js_name = "new_twisp")]
     pub async fn new_twisp_wbg(&self, term: String) -> Result<Object, JsError> {
         self.new_twisp(term).await.map_err(jserror)
@@ -125,7 +164,7 @@ impl WispIwa {
                 0,
             )
             .await?;
-		let id = stream.stream_id;
+        let id = stream.stream_id;
         let pext_stream = Arc::new(stream.get_protocol_extension_stream());
         let (rx, tx) = stream.into_io().into_split();
 
@@ -164,7 +203,6 @@ impl WispIwa {
 
         let resize = Closure::wrap(boxed);
 
-
         let obj = Object::new();
         object_set(&obj, &"read".into(), &readable);
         object_set(&obj, &"write".into(), &writable);
@@ -173,9 +211,9 @@ impl WispIwa {
             &"resize".into(),
             &resize.as_ref().unchecked_ref::<Function>().into(),
         );
-		object_set(&obj, &"id".into(), &id.into());
+        object_set(&obj, &"id".into(), &id.into());
 
-		std::mem::forget(resize);
+        std::mem::forget(resize);
         Ok(obj)
     }
 
@@ -187,7 +225,7 @@ impl WispIwa {
         Ok(Self {
             url,
             mux: Arc::new(Mutex::new(None)),
-			disconnect,
+            disconnect,
         })
     }
 }

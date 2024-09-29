@@ -59,3 +59,13 @@ export async function create_twisp(term: string): Promise<{ read: ReadPort, writ
 
 	return { read: channel.port2, write: write, resize: resize, id: stream.id };
 }
+
+export async function create_tcp(host: string, port: number): Promise<{ read: ReadableStream, write: WritableStream, id: number }> {
+	const client = await get_client();
+	const stream: {
+		read: ReadableStream,
+		write: WritableStream,
+		id: number
+	} = await client.new_tcp(host, port) as any;
+	return stream;
+}

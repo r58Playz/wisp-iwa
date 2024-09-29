@@ -15,6 +15,9 @@
 		}
 	],
 	"permissions_policy": {
+		"cross-origin-isolated": [
+			"self"
+		],
 		"direct-sockets": [
 			"self"
 		]
