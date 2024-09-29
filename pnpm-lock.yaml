@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@catppuccin/palette':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@ktibow/iconset-material-symbols':
         specifier: ^0.0.1725600996
         version: 0.0.1725600996
@@ -23,6 +26,9 @@ importers:
       '@xterm/addon-web-links':
         specifier: ^0.11.0
         version: 0.11.0(@xterm/xterm@5.5.0)
+      '@xterm/addon-webgl':
+        specifier: ^0.18.0
+        version: 0.18.0(@xterm/xterm@5.5.0)
       '@xterm/xterm':
         specifier: ^5.5.0
         version: 5.5.0
@@ -62,6 +68,9 @@ importers:
         version: 0.2.1
 
 packages:
+
+  '@catppuccin/palette@1.4.0':
+    resolution: {integrity: sha512-Npdg/QFeMAEbRVlnJqc1xE3i7NI4liSq4tTTXk4U/L3vPEiqw3bZQJRLYjuP0Vq2AEDNS5H5Li+lk27c38sP4g==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -332,6 +341,11 @@ packages:
 
   '@xterm/addon-web-links@0.11.0':
     resolution: {integrity: sha512-nIHQ38pQI+a5kXnRaTgwqSHnX7KE6+4SVoceompgHL26unAxdfP6IPqUTSYPQgSwM56hsElfoNrrW5V7BUED/Q==}
+    peerDependencies:
+      '@xterm/xterm': ^5.0.0
+
+  '@xterm/addon-webgl@0.18.0':
+    resolution: {integrity: sha512-xCnfMBTI+/HKPdRnSOHaJDRqEpq2Ugy8LEj9GiY4J3zJObo3joylIFaMvzBwbYRg8zLtkO0KQaStCeSfoaI2/w==}
     peerDependencies:
       '@xterm/xterm': ^5.0.0
 
@@ -649,6 +663,8 @@ packages:
 
 snapshots:
 
+  '@catppuccin/palette@1.4.0': {}
+
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
 
@@ -815,6 +831,10 @@ snapshots:
       '@xterm/xterm': 5.5.0
 
   '@xterm/addon-web-links@0.11.0(@xterm/xterm@5.5.0)':
+    dependencies:
+      '@xterm/xterm': 5.5.0
+
+  '@xterm/addon-webgl@0.18.0(@xterm/xterm@5.5.0)':
     dependencies:
       '@xterm/xterm': 5.5.0
 

@@ -1,6 +1,6 @@
 // @ts-ignore
-import { TextField, Card, Button, argbFromHex, genScheme, sourceColorFromImage, hexFromArgb } from "m3-dreamland";
-import { settings } from "../store";
+import { TextField, Card, Button, Switch, argbFromHex, genScheme, sourceColorFromImage, hexFromArgb } from "m3-dreamland";
+import { settings, terminalTheme } from "../store";
 
 const transformContrast = function(contrast: number): number {
 	return contrast == 0
@@ -90,6 +90,25 @@ const MaterialSettings: Component<{}, { colorSelector: HTMLElement, fileSelector
 	)
 }
 
+const ColorPicker: Component<{ description: string, color: string }, { picker: HTMLInputElement }> = function() {
+	this.css = `
+		display: flex;
+		flex-direction: column;
+
+		input {
+			visibility: hidden;
+			width: 0;
+			height: 0;
+		}
+	`
+	return (
+		<div>
+			<Button type="tonal" on:click={() => { this.picker.click(); }}>{use(this.description)}: {use(this.color, x => x.toUpperCase())}</Button>
+			<input type="color" bind:value={use(this.color)} bind:this={use(this.picker)} />
+		</div>
+	)
+}
+
 const Settings: Component<{}, {}> = function() {
 	this.css = `
 		.TextField-m3-container {
@@ -97,6 +116,16 @@ const Settings: Component<{}, {}> = function() {
 		}
 		.invalid-url {
 			color: rgb(var(--m3-scheme-error));
+		}
+		.switch-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 1em;
+		}
+		.themeGrid {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1em;
 		}
 	`;
 
@@ -112,7 +141,7 @@ const Settings: Component<{}, {}> = function() {
 
 	return (
 		<div>
-			<h1 class="m3-font-headline-medium">Settings</h1>
+			<h1 class="m3-font-headline-large">Settings</h1>
 			<div>
 				<TextField bind:value={use(settings.wisp)} bind:error={use(settings.wisp, x => !testUrl(x))} name="Wisp Server URL" />
 				{use(settings.wisp, x => testUrl(x) ? undefined : (
@@ -121,10 +150,44 @@ const Settings: Component<{}, {}> = function() {
 					</div>
 				))}
 			</div>
-			<h2 class="m3-font-title-large">Terminal</h2>
-			<TextField bind:value={use(settings.font)} name="Font" />
+
 			<h2 class="m3-font-title-large">Material UI</h2>
 			<MaterialSettings />
+
+			<h2 class="m3-font-title-large">Terminal</h2>
+			<p>
+				Terminal settings only apply to new terminals, not existing ones.
+			</p>
+			<TextField bind:value={use(settings.termFont)} name="Font" />
+			<div class="switch-wrapper">
+				<span>WebGL renderer</span>
+				<Switch bind:checked={use(settings.termWebgl)} />
+			</div>
+			<h2 class="m3-font-title-large">Terminal Theme</h2>
+			<div class="themeGrid">
+				<ColorPicker description="Foreground" bind:color={use(terminalTheme.foreground)} />
+				<ColorPicker description="Background" bind:color={use(terminalTheme.background)} />
+				<ColorPicker description="Cursor" bind:color={use(terminalTheme.cursor)} />
+				<ColorPicker description="Cursor accent" bind:color={use(terminalTheme.cursorAccent)} />
+				<ColorPicker description="Selection background" bind:color={use(terminalTheme.selectionBackground)} />
+				<ColorPicker description="Selection foreground" bind:color={use(terminalTheme.selectionForeground)} />
+				<ColorPicker description="Black" bind:color={use(terminalTheme.black)} />
+				<ColorPicker description="Red" bind:color={use(terminalTheme.red)} />
+				<ColorPicker description="Green" bind:color={use(terminalTheme.green)} />
+				<ColorPicker description="Yellow" bind:color={use(terminalTheme.yellow)} />
+				<ColorPicker description="Blue" bind:color={use(terminalTheme.blue)} />
+				<ColorPicker description="Magenta" bind:color={use(terminalTheme.magenta)} />
+				<ColorPicker description="Cyan" bind:color={use(terminalTheme.cyan)} />
+				<ColorPicker description="White" bind:color={use(terminalTheme.white)} />
+				<ColorPicker description="Bright black" bind:color={use(terminalTheme.brightBlack)} />
+				<ColorPicker description="Bright red" bind:color={use(terminalTheme.brightRed)} />
+				<ColorPicker description="Bright green" bind:color={use(terminalTheme.brightGreen)} />
+				<ColorPicker description="Bright yellow" bind:color={use(terminalTheme.brightYellow)} />
+				<ColorPicker description="Bright blue" bind:color={use(terminalTheme.brightBlue)} />
+				<ColorPicker description="Bright magenta" bind:color={use(terminalTheme.brightMagenta)} />
+				<ColorPicker description="Bright cyan" bind:color={use(terminalTheme.brightCyan)} />
+				<ColorPicker description="Bright white" bind:color={use(terminalTheme.brightWhite)} />
+			</div>
 		</div>
 	);
 };

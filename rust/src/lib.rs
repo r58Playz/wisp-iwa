@@ -37,14 +37,24 @@ pub fn object_set(obj: &Object, key: &JsValue, value: &JsValue) {
 
 #[wasm_bindgen]
 pub struct WispIwa {
-    #[wasm_bindgen(getter_with_clone)]
-    pub url: String,
+    url: String,
     mux: Arc<Mutex<Option<ClientMux>>>,
 	disconnect: Function,
 }
 
 #[wasm_bindgen]
 impl WispIwa {
+	#[wasm_bindgen(js_name = "close")]
+	pub async fn close_wbg(&self) -> Result<(), JsError> {
+		self.close().await.map_err(jserror)
+	}
+	async fn close(&self) -> anyhow::Result<()> {
+		if let Some(mux) = self.mux.lock().await.as_ref() {
+			mux.close().await?;
+		}
+		Ok(())
+	}
+
     #[wasm_bindgen(js_name = "replace_mux")]
     pub async fn replace_mux_wbg(&self) -> Result<(), JsError> {
         self.replace_mux(self.mux.lock().await)

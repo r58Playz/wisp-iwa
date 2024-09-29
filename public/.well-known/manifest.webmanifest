@@ -2,7 +2,7 @@
 	"id": "/",
 	"name": "Wisp IWA",
 	"version": "0.0.0",
-	"start_url": "/status",
+	"start_url": "/",
 	"display": "standalone",
 	"scope": "/",
 	"isolated_storage": true,

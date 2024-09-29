@@ -29,7 +29,6 @@ if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTy
 }
 
 const Layout: Component<{}, {
-	currentPath: string,
 	routes: { path: string, sicon: IconifyIcon, icon: IconifyIcon, label: string, el: HTMLElement }[],
 }> = function() {
 	this.css = `
@@ -125,7 +124,6 @@ const Layout: Component<{}, {
 			el: <Settings />
 		},
 	];
-	this.currentPath = "twisp";
 
 	return (
 		<div>
@@ -135,9 +133,9 @@ const Layout: Component<{}, {
 						{this.routes.map(x => {
 							return (
 								<NavListButton
-									bind:icon={use(this.currentPath, y => y === x.path ? x.sicon : x.icon)}
-									bind:selected={use(this.currentPath, y => y === x.path)}
-									on:click={() => this.currentPath = x.path}
+									bind:icon={use(settings.page, y => y === x.path ? x.sicon : x.icon)}
+									bind:selected={use(settings.page, y => y === x.path)}
+									on:click={() => settings.page = x.path}
 								>
 									{x.label}
 								</NavListButton>
@@ -149,7 +147,7 @@ const Layout: Component<{}, {
 			<div class="content">
 				{this.routes.map(route => {
 					return (
-						<div class={use`view ${use(this.currentPath, x => x === route.path ? "" : "inactive")}`}>
+						<div class={use`view ${use(settings.page, x => x === route.path ? "" : "inactive")}`}>
 							{route.el}
 						</div>
 					)

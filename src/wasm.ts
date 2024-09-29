@@ -3,27 +3,31 @@ import { settings } from "./store";
 import { ReadPort, ResizeClosure, WriteClosure } from "./term";
 await init({ module_or_path: "./wisp_iwa_rust_bg.wasm" });
 
-export let status: Stateful<{ connected: boolean }> = $state({ connected: false });
+export let status: Stateful<{ connected: boolean, wisp: string | null }> = $state({ connected: false, wisp: null });
 
 let client: WispIwa | undefined;
 
-async function get_client(): Promise<WispIwa> {
-	if (client) {
+async function get_client(recreate?: boolean): Promise<WispIwa> {
+	if (client && status.wisp === settings.wisp && !recreate) {
 		return client;
 	} else {
+		if (client)
+			await client.close();
 		// @ts-expect-warning typescript is stupid...
 		client = await new WispIwa(settings.wisp, (e: string) => {
 			console.warn("disconnected", e);
 			status.connected = false;
+			status.wisp = null;
 		});
+		await client.replace_mux();
+		status.connected = true;
+		status.wisp = settings.wisp;
 		return client;
 	}
 }
 
 export async function reconnect(): Promise<void> {
-	let client = await get_client();
-	await client.replace_mux();
-	status.connected = true;
+	await get_client(true);
 }
 
 export async function create_twisp(term: string): Promise<{ read: ReadPort, write: WriteClosure, resize: ResizeClosure, id: number }> {
@@ -41,7 +45,6 @@ export async function create_twisp(term: string): Promise<{ read: ReadPort, writ
 		writer.write(x);
 	}
 	const resize = (cols: number, rows: number) => {
-		console.log("resizing to ", cols, rows);
 		stream.resize(rows, cols);
 	}
 

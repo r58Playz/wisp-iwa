@@ -1,4 +1,4 @@
-import { settings } from "./store";
+import { settings, terminalTheme } from "./store";
 
 export type ReadPort = MessagePort;
 export type WriteClosure = (data: Uint8Array) => void;
@@ -27,7 +27,12 @@ const Term: Component<
 				}
 			};
 			const root = this.root as HTMLIFrameElement;
-			root.contentWindow!.postMessage({ port: channel.port2, fontFamily: settings.font }, { transfer: [channel.port2] });
+			root.contentWindow!.postMessage({
+				port: channel.port2, 
+				fontFamily: settings.termFont,
+				webgl: settings.termWebgl,
+				theme: JSON.parse(JSON.stringify(terminalTheme)),
+			}, { transfer: [channel.port2] });
 			this.read.onmessage = (e) => {
 				if (e.data.type === "data") {
 					channel.port1.postMessage({ type: "data", data: e.data.data });
