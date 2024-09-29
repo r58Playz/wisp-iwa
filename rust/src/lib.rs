@@ -5,17 +5,20 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, bail};
 use bytes::BytesMut;
+use ed25519_dalek::pkcs8::DecodePrivateKey;
 use futures_util::{
     lock::{Mutex, MutexGuard},
     SinkExt, TryStreamExt,
 };
 use js_sys::{Function, Object, Reflect, Uint8Array};
+use sha2::{Digest, Sha512};
 use twisp::{TWispClientProtocolExtension, TWispClientProtocolExtensionBuilder};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{future_to_promise, spawn_local};
 use wasm_streams::{ReadableStream, WritableStream};
 use wisp_mux::{
     extensions::{
+        cert::{CertAuthProtocolExtensionBuilder, SigningKey},
         udp::{UdpProtocolExtension, UdpProtocolExtensionBuilder},
         AnyProtocolExtensionBuilder,
     },
@@ -38,6 +41,7 @@ pub fn object_set(obj: &Object, key: &JsValue, value: &JsValue) {
 #[wasm_bindgen]
 pub struct WispIwa {
     url: String,
+    key: Option<SigningKey>,
     mux: Arc<Mutex<Option<ClientMux>>>,
     disconnect: Function,
 }
@@ -70,17 +74,21 @@ impl WispIwa {
             bail!("ws failed to connect");
         }
 
-        let (mux, fut) = ClientMux::create(
-            rx,
-            tx,
-            Some(WispV2Extensions::new(vec![
-                AnyProtocolExtensionBuilder::new(UdpProtocolExtensionBuilder),
-                AnyProtocolExtensionBuilder::new(TWispClientProtocolExtensionBuilder),
-            ])),
-        )
-        .await?
-        .with_required_extensions(&[UdpProtocolExtension::ID, TWispClientProtocolExtension::ID])
-        .await?;
+        let mut v2 = WispV2Extensions::new(vec![
+            AnyProtocolExtensionBuilder::new(UdpProtocolExtensionBuilder),
+            AnyProtocolExtensionBuilder::new(TWispClientProtocolExtensionBuilder),
+        ]);
+
+        if let Some(key) = self.key.clone() {
+            v2.add_extension(AnyProtocolExtensionBuilder::new(
+                CertAuthProtocolExtensionBuilder::new_client(key),
+            ));
+        }
+
+        let (mux, fut) = ClientMux::create(rx, tx, Some(v2))
+            .await?
+            .with_required_extensions(&[UdpProtocolExtension::ID, TWispClientProtocolExtension::ID])
+            .await?;
 
         locked.replace(mux);
         let arc_mux = self.mux.clone();
@@ -218,12 +226,29 @@ impl WispIwa {
     }
 
     #[wasm_bindgen(constructor)]
-    pub async fn new_wbg(url: String, disconnect: Function) -> Result<WispIwa, JsError> {
-        Self::new(url, disconnect).await.map_err(jserror)
+    pub fn new_wbg(
+        url: String,
+        key: String,
+        disconnect: Function,
+    ) -> Result<WispIwa, JsError> {
+        Self::new(url, key, disconnect).map_err(jserror)
     }
-    async fn new(url: String, disconnect: Function) -> anyhow::Result<Self> {
+    fn new(url: String, key: String, disconnect: Function) -> anyhow::Result<Self> {
+        let key = if !key.is_empty() {
+            let signer = ed25519_dalek::SigningKey::from_pkcs8_pem(&key)?;
+            let binary_key = signer.verifying_key().to_bytes();
+
+            let mut hasher = Sha512::new();
+            hasher.update(binary_key);
+            let hash: [u8; 64] = hasher.finalize().into();
+            Some(SigningKey::new_ed25519(Arc::new(signer), hash))
+        } else {
+            None
+        };
+
         Ok(Self {
             url,
+            key,
             mux: Arc::new(Mutex::new(None)),
             disconnect,
         })

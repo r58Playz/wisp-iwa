@@ -1,5 +1,5 @@
 // @ts-ignore
-import { TextField, Card, Button, Switch, argbFromHex, genScheme, sourceColorFromImage, hexFromArgb } from "m3-dreamland";
+import { TextField, TextFieldMultiline, Card, Button, Switch, argbFromHex, genScheme, sourceColorFromImage, hexFromArgb } from "m3-dreamland";
 import { settings, terminalTheme } from "../store";
 
 const transformContrast = function(contrast: number): number {
@@ -111,7 +111,7 @@ const ColorPicker: Component<{ description: string, color: string }, { picker: H
 
 const Settings: Component<{}, {}> = function() {
 	this.css = `
-		.TextField-m3-container {
+		.TextField-m3-container, .TextFieldMultiline-m3-container {
 			width: min(800px, 100%);
 		}
 		.invalid-url {
@@ -150,6 +150,7 @@ const Settings: Component<{}, {}> = function() {
 					</div>
 				))}
 			</div>
+			<TextFieldMultiline bind:value={use(settings.certificate)} name="Wisp Certificate Authentication Private Key" />
 
 			<h2 class="m3-font-title-large">Material UI</h2>
 			<MaterialSettings />

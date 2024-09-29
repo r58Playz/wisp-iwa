@@ -5,6 +5,7 @@ import { flavors as catppuccin } from "@catppuccin/palette";
 export let settings: Stateful<{
 	page: string,
 	wisp: string,
+	certificate: string,
 	termPath: string,
 	termFont: string,
 	termWebgl: boolean,
@@ -17,6 +18,7 @@ export let settings: Stateful<{
 }> = $store({
 	page: "status",
 	wisp: "",
+	certificate: "",
 	termPath: "/usr/bin/env TERM=\"xterm-256color\" /usr/bin/fish",
 	termFont: "monospace",
 	termWebgl: true,

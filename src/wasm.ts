@@ -13,15 +13,17 @@ async function get_client(recreate?: boolean): Promise<WispIwa> {
 	} else {
 		if (client)
 			await client.close();
-		// @ts-expect-warning typescript is stupid...
-		client = await new WispIwa(settings.wisp, (e: string) => {
+
+		client = new WispIwa(settings.wisp, settings.certificate, (e: string) => {
 			console.warn("disconnected", e);
 			status.connected = false;
 			status.wisp = null;
 		});
+
 		await client.replace_mux();
 		status.connected = true;
 		status.wisp = settings.wisp;
+
 		return client;
 	}
 }

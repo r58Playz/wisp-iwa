@@ -37,7 +37,7 @@ importers:
         version: 0.0.24
       m3-dreamland:
         specifier: github:mercuryworkshop/m3-dreamland
-        version: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/ec802decb6afab100e966a26c4d40d61a303d877
+        version: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/e995bda3de7df2b2b7997ce69f513670e5392888
       rollup-plugin-typescript2:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.22.5)(typescript@5.6.2)
@@ -397,8 +397,8 @@ packages:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
 
-  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/ec802decb6afab100e966a26c4d40d61a303d877:
-    resolution: {tarball: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/ec802decb6afab100e966a26c4d40d61a303d877}
+  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/e995bda3de7df2b2b7997ce69f513670e5392888:
+    resolution: {tarball: https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/e995bda3de7df2b2b7997ce69f513670e5392888}
     version: 0.0.1
 
   make-dir@3.1.0:
@@ -802,7 +802,7 @@ snapshots:
     dependencies:
       p-locate: 4.1.0
 
-  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/ec802decb6afab100e966a26c4d40d61a303d877:
+  m3-dreamland@https://codeload.github.com/mercuryworkshop/m3-dreamland/tar.gz/e995bda3de7df2b2b7997ce69f513670e5392888:
     dependencies:
       '@ktibow/iconset-material-symbols': 0.0.1717653083
       '@material/material-color-utilities': 0.3.0
