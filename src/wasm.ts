@@ -1,7 +1,7 @@
 import init, { WispIwa } from "../rust/pkg/wisp_iwa_rust";
 import { settings } from "./store";
 import { ReadPort, ResizeClosure, WriteClosure } from "./term";
-await init({ module_or_path: "./wisp_iwa_rust_bg.wasm" });
+await init();
 
 export let status: Stateful<{ connected: boolean, wisp: string | null }> = $state({ connected: false, wisp: null });
 

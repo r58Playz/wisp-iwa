@@ -165,27 +165,49 @@ const Settings: Component<{}, {}> = function() {
 			</div>
 			<h2 class="m3-font-title-large">Terminal Theme</h2>
 			<div class="themeGrid">
+				{/* @ts-ignore */}
 				<ColorPicker description="Foreground" bind:color={use(terminalTheme.foreground)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Background" bind:color={use(terminalTheme.background)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Cursor" bind:color={use(terminalTheme.cursor)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Cursor accent" bind:color={use(terminalTheme.cursorAccent)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Selection background" bind:color={use(terminalTheme.selectionBackground)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Selection foreground" bind:color={use(terminalTheme.selectionForeground)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Black" bind:color={use(terminalTheme.black)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Red" bind:color={use(terminalTheme.red)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Green" bind:color={use(terminalTheme.green)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Yellow" bind:color={use(terminalTheme.yellow)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Blue" bind:color={use(terminalTheme.blue)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Magenta" bind:color={use(terminalTheme.magenta)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Cyan" bind:color={use(terminalTheme.cyan)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="White" bind:color={use(terminalTheme.white)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright black" bind:color={use(terminalTheme.brightBlack)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright red" bind:color={use(terminalTheme.brightRed)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright green" bind:color={use(terminalTheme.brightGreen)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright yellow" bind:color={use(terminalTheme.brightYellow)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright blue" bind:color={use(terminalTheme.brightBlue)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright magenta" bind:color={use(terminalTheme.brightMagenta)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright cyan" bind:color={use(terminalTheme.brightCyan)} />
+				{/* @ts-ignore */}
 				<ColorPicker description="Bright white" bind:color={use(terminalTheme.brightWhite)} />
 			</div>
 		</div>
