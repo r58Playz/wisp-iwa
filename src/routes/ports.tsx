@@ -91,6 +91,10 @@ const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHo
 		}
 		.TextField-m3-container {
 			width: 100%;
+			min-width: 10rem !important;
+		}
+		.controls .port .TextField-m3-container {
+			min-width: 7.5rem !important;
 		}
 
 		.forwarderList {
@@ -111,6 +115,20 @@ const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHo
 			display: flex;
 			flex-direction: column;
 			gap: 1em;
+		}
+
+		@media (max-width: 800px) {
+			.forwarderList {
+				display: flex;
+				flex-direction: column;
+			}
+		}
+
+		@media (max-width: 700px) {
+			.controls {
+				flex-direction: column;
+				align-items: stretch;
+			}
 		}
 	`;
 
