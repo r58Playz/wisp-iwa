@@ -4,78 +4,77 @@ import { create_tcp } from "../wasm";
 import { Card, TextField, Button, Icon } from "m3-dreamland";
 import iconSwapHoriz from "@ktibow/iconset-material-symbols/swap-horiz";
 
+type TcpForwarderClient = { id: Symbol, streamId: number, remoteHost: string, remotePort: number, socket: TCPSocket, close: () => void };
+
 class TcpForwarder {
 	localPort: number;
 	remoteHost: string;
 	remotePort: number;
 	socket: TCPServerSocket;
-	stateful: Stateful<{ clients: { id: Symbol, stream_id: number, socket: TCPSocket }[] }> = $state({ clients: [] });
+	stateful: Stateful<{ clients: TcpForwarderClient[] }>;
+	closePromise: Promise<{ value?: TCPSocket, done: boolean }>;
+	// @ts-expect-error yes it is...
+	closeResolve: (value: { value?: TCPSocket, done: boolean }) => void;
 
 	constructor(localPort: number, remoteHost: string, remotePort: number) {
 		this.localPort = localPort;
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.socket = new TCPServerSocket("127.0.0.1", { localPort: localPort });
+		this.stateful = $state({ clients: [] });
+		this.closePromise = new Promise(r => this.closeResolve = r);
 	}
 
 	async forward() {
 		let opened = await this.socket.opened;
-		// @ts-expect-error
-		for await (const _client of opened.readable) {
-			const client = _client as TCPSocket;
+		const reader = opened.readable.getReader();
+		while (true) {
+			const { value: client, done } = await Promise.race([reader.read(), this.closePromise]);
+			if (!client || done) break;
+
 			const symbol = Symbol();
 			(async () => {
 				const opened = await client.opened;
 				const stream = await create_tcp(this.remoteHost, this.remotePort);
+				let closeResolve = () => { };
+				const closePromise: Promise<void> = new Promise(r => closeResolve = r);
 
-				this.stateful.clients = [...this.stateful.clients, { id: symbol, stream_id: stream.id, socket: client }];
-				console.log(this.stateful.clients);
+				this.stateful.clients = [...this.stateful.clients, {
+					id: symbol,
+					streamId: stream.id,
+					remotePort: opened.remotePort,
+					remoteHost: opened.remoteAddress,
+					socket: client,
+					close: closeResolve,
+				}];
+				const abort = new AbortController();
+				const readPipe = opened.readable.pipeTo(stream.write, { signal: abort.signal });
+				const writePipe = stream.read.pipeTo(opened.writable, { signal: abort.signal });
 				try {
-					await Promise.race([opened.readable.pipeTo(stream.write), stream.read.pipeTo(opened.writable)]);
+					await Promise.race([readPipe, writePipe, closePromise]);
 				} catch (err) {
 					console.warn("forwarding failed: ", err);
 				}
+				abort.abort();
 				client.close();
 				this.stateful.clients = this.stateful.clients.filter(({ id }) => id !== symbol);
-				console.log(this.stateful.clients);
 			})();
 		}
+		reader.cancel();
+		this.socket.close();
 	}
 
 	async close() {
-		await Promise.all([...this.stateful.clients.map(({ socket }) => socket.close()), this.socket.close()]);
+		this.stateful.clients.forEach(({ close }) => close());
+		this.closeResolve({ done: true });
 	}
-}
-
-const TcpForwardingSession: Component<{ forwarder: TcpForwarder }, {}> = function() {
-	this.css = `
-		.client-list {
-			display: flex;
-			flex-direction: column;
-			gap: 1em;
-		}
-	`;
-	return (
-		<div>
-			<Card type="filled">
-				<div class="m3-font-title-medium">127.0.0.1:{this.forwarder.localPort} to {this.forwarder.remoteHost}:{this.forwarder.remotePort}</div>
-				<div class="client-list">
-					{use(this.forwarder.stateful.clients, x => x.map(x => {
-						return (
-							<div>Stream ID {x.stream_id}</div>
-						)
-					}))}
-				</div>
-			</Card>
-		</div>
-	)
 }
 
 const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHost: string, remotePort: string }, {}> = function() {
 	this.forwarders = [];
 	this.localPort = "8000";
-	this.remoteHost = "";
-	this.remotePort = "";
+	this.remoteHost = "localhost";
+	this.remotePort = "5901";
 
 	this.css = `
 		.controls {
@@ -93,14 +92,42 @@ const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHo
 		.TextField-m3-container {
 			width: 100%;
 		}
+
+		.forwarderList {
+			margin-top: 1em;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1em;
+		}
+		.forwarderHeader {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+		.grow {
+			flex: 1;
+		}
+		.clientList {
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+		}
 	`;
 
 	const self = this;
 	const addForwarder = async () => {
+		if (self.forwarders.find((x) => x.localPort === +self.localPort)) return;
 		// @ts-ignore
 		const forwarder = await new TcpForwarder(+self.localPort, self.remoteHost, +self.remotePort);
 		self.forwarders = [...self.forwarders, forwarder];
 		await forwarder.forward();
+	}
+	const removeForwarder = async (port: number) => {
+		const forwarder = self.forwarders.find(x => x.localPort === port);
+		if (forwarder) {
+			await forwarder.close();
+			self.forwarders = self.forwarders.filter(x => x.localPort !== port);
+		}
 	}
 
 	return (
@@ -119,7 +146,25 @@ const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHo
 			</div>
 			<div class="forwarderList">
 				{use(this.forwarders, x => x.map(x => {
-					return <TcpForwardingSession forwarder={x} />
+					return (
+						<Card type="filled">
+							<div class="forwarderHeader">
+								<span class="m3-font-title-medium">Forwarder</span>
+								<span class="grow"></span>
+								<Button type="tonal" on:click={() => { removeForwarder(x.localPort) }}>Stop Forwarding</Button>
+							</div>
+							<div>
+								127.0.0.1:{x.localPort} to {x.remoteHost}:{x.remotePort}
+							</div>
+							<div class="client-list">
+								{use(x.stateful.clients, x => x.map(x => {
+									return (
+										<div>Stream ID {x.streamId}: {x.remoteHost}:{x.remotePort}</div>
+									)
+								}))}
+							</div>
+						</Card>
+					)
 				}))}
 			</div>
 		</div>
