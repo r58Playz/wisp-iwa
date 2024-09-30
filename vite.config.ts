@@ -35,6 +35,9 @@ export default defineConfig({
 	plugins,
 	build: {
 		target: "esnext",
+		rollupOptions: {
+			input: ['index.html', 'term.html'],
+		}
 	},
 	server: {
 		port: 5193,
