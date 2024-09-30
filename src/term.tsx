@@ -28,7 +28,7 @@ const Term: Component<
 			};
 			const root = this.root as HTMLIFrameElement;
 			root.contentWindow!.postMessage({
-				port: channel.port2, 
+				port: channel.port2,
 				fontFamily: settings.termFont,
 				webgl: settings.termWebgl,
 				theme: JSON.parse(JSON.stringify(terminalTheme)),

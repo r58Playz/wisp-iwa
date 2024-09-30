@@ -70,7 +70,7 @@ class TcpForwarder {
 	}
 }
 
-const Ports: Component<{ forwarders: TcpForwarder[], localPort: string, remoteHost: string, remotePort: string }, {}> = function() {
+const Ports: Component<{}, { forwarders: TcpForwarder[], localPort: string, remoteHost: string, remotePort: string }> = function() {
 	this.forwarders = [];
 	this.localPort = "8000";
 	this.remoteHost = "localhost";
