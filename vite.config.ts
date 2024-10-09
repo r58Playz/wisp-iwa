@@ -7,7 +7,7 @@ import * as wbnSign from 'wbn-sign';
 
 const plugins = [dreamlandPlugin()];
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.BUILD_IWA === 'true') {
 	const key = wbnSign.parsePemKey(
 		Buffer.from(process.env.KEY || fs.readFileSync('./certs/encrypted_key.pem')),
 		process.env.KEY_PASSPHRASE ||

@@ -15,5 +15,5 @@ Requires the server to support [Wisp V2](https://github.com/WICG/isolated-web-ap
     - `openssl pkcs8 -in private_key.pem -topk8 -out encrypted_key.pem`
     - `rm private_key.pem`
     - This key will be used to sign the bundle.
-- `NODE_ENV=production pnpm build`
+- `BUILD_IWA=true pnpm build`
 - See [Getting Started With Isolated Web Apps](https://chromeos.dev/en/tutorials/getting-started-with-isolated-web-apps/2) for more info.
