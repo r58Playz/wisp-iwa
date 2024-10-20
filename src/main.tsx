@@ -10,7 +10,6 @@ import iconSettingsOutline from "@ktibow/iconset-material-symbols/settings-outli
 import iconLan from "@ktibow/iconset-material-symbols/lan";
 import iconLanOutline from "@ktibow/iconset-material-symbols/lan-outline";
 
-// @ts-ignore
 import { Styles, NavList, NavListButton } from 'm3-dreamland';
 
 import './index.css';

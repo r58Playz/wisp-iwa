@@ -1,6 +1,5 @@
 import { create_tcp } from "../wasm";
 
-// @ts-ignore
 import { Card, TextField, Button, Icon } from "m3-dreamland";
 import iconSwapHoriz from "@ktibow/iconset-material-symbols/swap-horiz";
 

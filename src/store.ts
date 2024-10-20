@@ -1,4 +1,3 @@
-// @ts-ignore
 import { SerializedScheme } from "m3-dreamland";
 import { flavors as catppuccin } from "@catppuccin/palette";
 
