@@ -1,10 +1,10 @@
 import Term from "./term";
 
-function difference(a: number[], b: number[]) {
+function difference(a: string[], b: string[]) {
 	return a.filter(x => !b.includes(x));
 }
 
-export const IframeSafeList: Component<{ list: { el: DLElement<typeof Term>, id: number }[], active: number }, { oldList: number[], oldId: number }> = function() {
+export const IframeSafeList: Component<{ list: { el: DLElement<typeof Term>, id: string }[], active: string }, { oldList: string[], oldId: string }> = function() {
 	this.css = `
 		position: relative;
 		width: 100%;
@@ -19,7 +19,7 @@ export const IframeSafeList: Component<{ list: { el: DLElement<typeof Term>, id:
 		}
 	`;
 	this.oldList = [];
-	this.oldId = 0;
+	this.oldId = "";
 	this.mount = () => {
 		useChange([this.list, this.active], () => {
 			this.root.querySelector(`[data-id="${this.oldId}"]`)?.classList.add("hidden");

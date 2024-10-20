@@ -152,13 +152,13 @@ const Ports: Component<{}, { forwarders: TcpForwarder[], localPort: string, remo
 		<div>
 			<div class="controls">
 				<span class="port">
-					<TextField name="Local Port" bind:value={use(this.localPort)} bind:error={use(this.localPort, x => +x !== +x)} />
+					<TextField name="Local Port" bind:value={use(this.localPort)} error={use(this.localPort, x => +x !== +x)} />
 				</span>
 				<span class="host">
 					<TextField name="Remote Host" bind:value={use(this.remoteHost)} />
 				</span>
 				<span class="port">
-					<TextField name="Remote Port" bind:value={use(this.remotePort)} bind:error={use(this.remotePort, x => +x !== +x)} />
+					<TextField name="Remote Port" bind:value={use(this.remotePort)} error={use(this.remotePort, x => +x !== +x)} />
 				</span>
 				<Button iconType="left" type="tonal" on:click={addForwarder}><Icon icon={iconSwapHoriz} />Forward</Button>
 			</div>

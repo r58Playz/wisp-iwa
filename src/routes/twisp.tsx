@@ -1,5 +1,4 @@
 import Term from "../term";
-// @ts-ignore
 import { Tabs, TextField, Button, Icon } from "m3-dreamland";
 import iconAdd from "@ktibow/iconset-material-symbols/add";
 import { settings } from "../store";
@@ -7,8 +6,8 @@ import { create_twisp } from "../wasm";
 import { IframeSafeList } from "../iframesafelist";
 
 const Twisp: Component<{}, {
-	terms: { name: string, id: number, el: DLElement<typeof Term> }[],
-	currentTerm: number
+	terms: { name: string, id: string, el: DLElement<typeof Term> }[],
+	currentTerm: string,
 }> = function() {
 	this.css = `
 		height: 100%;
@@ -48,7 +47,7 @@ const Twisp: Component<{}, {
 	this.terms = [];
 
 	const self = this;
-	function remove_term(term_id: number) {
+	function remove_term(term_id: string) {
 		let idx = self.terms.findIndex(({ id }) => id === term_id);
 		self.terms = self.terms.filter(({ id }) => id !== term_id);
 		if (self.terms.length) {
@@ -57,7 +56,7 @@ const Twisp: Component<{}, {
 		}
 	}
 
-	function rename_term(term_id: number, title: string) {
+	function rename_term(term_id: string, title: string) {
 		let idx = self.terms.findIndex(({ id }) => id === term_id);
 		let terms = self.terms;
 		terms[idx].name = title;
@@ -66,20 +65,21 @@ const Twisp: Component<{}, {
 
 	async function create_term() {
 		const term = await create_twisp(settings.termPath);
+		const id = "" + term.id;
 		term.read.addEventListener("message", (e) => {
 			if (e.data.type === "close") {
-				remove_term(term.id);
+				remove_term(id);
 			}
 		});
 		const rename = (title: string) => {
-			rename_term(term.id, title);
+			rename_term(id, title);
 		};
 		self.terms = [...self.terms, {
 			el: <Term read={term.read} write={term.write} resize={term.resize} rename={rename} />,
-			id: term.id,
-			name: "Stream ID " + term.id
+			id: id,
+			name: "Stream ID " + id
 		}];
-		self.currentTerm = term.id;
+		self.currentTerm = id;
 	}
 
 	return (
@@ -90,13 +90,11 @@ const Twisp: Component<{}, {
 			</div>
 			{$if(use(this.terms, x => x.length === 0), undefined,
 				<Tabs
-					primary={true}
-					bind:items={use(this.terms, x => x.map(({ name, id }) => { return { name: name, value: id } }))}
+					items={use(this.terms, x => x.map(({ name, id }) => { return { name: name, value: id } }))}
 					bind:tab={use(this.currentTerm)}
 				/>
 			)}
-			{/* @ts-expect-error */}
-			<IframeSafeList bind:list={use(this.terms, x => x.map(({ el, id }) => { return { el: el, id: id } }))} bind:active={use(this.currentTerm)} />
+			<IframeSafeList list={use(this.terms, x => x.map(({ el, id }) => { return { el: el, id: id } }))} bind:active={use(this.currentTerm)} />
 		</div>
 	);
 };

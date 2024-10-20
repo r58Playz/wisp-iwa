@@ -19,7 +19,7 @@ const transformContrast = function(contrast: number): number {
 }
 
 const MaterialSettings: Component<{}, { colorSelector: HTMLElement, fileSelector: HTMLInputElement }> = function() {
-	const schemes = ["tonal_spot", "content", "fidelity", "vibrant", "expressive", "neutral", "monochrome"];
+	const schemes = ["tonal_spot", "content", "fidelity", "vibrant", "expressive", "neutral", "monochrome"] as const;
 	useChange([settings.themeScheme, settings.themeColor, settings.themeContrast], () => {
 		const { light, dark } = genScheme(schemes[settings.themeScheme], transformContrast(settings.themeContrast), argbFromHex(settings.themeColor));
 		settings.lightTheme = light;
@@ -143,7 +143,7 @@ const Settings: Component<{}, {}> = function() {
 		<div>
 			<h1 class="m3-font-headline-large">Settings</h1>
 			<div>
-				<TextField bind:value={use(settings.wisp)} bind:error={use(settings.wisp, x => !testUrl(x))} name="Wisp Server URL" />
+				<TextField bind:value={use(settings.wisp)} error={use(settings.wisp, x => !testUrl(x))} name="Wisp Server URL" />
 				{use(settings.wisp, x => testUrl(x) ? undefined : (
 					<div class="m3-font-label-medium invalid-url">
 						Invalid URL.

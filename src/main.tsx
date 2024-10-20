@@ -133,8 +133,11 @@ const Layout: Component<{}, {
 						{this.routes.map(x => {
 							return (
 								<NavListButton
-									bind:icon={use(settings.page, y => y === x.path ? x.sicon : x.icon)}
-									bind:selected={use(settings.page, y => y === x.path)}
+									type="auto"
+
+									icon={use(settings.page, y => y === x.path ? x.sicon : x.icon)}
+									selected={use(settings.page, y => y === x.path)}
+
 									on:click={() => settings.page = x.path}
 								>
 									{x.label}

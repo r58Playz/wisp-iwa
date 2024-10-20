@@ -10,24 +10,24 @@
   },
   "dependencies": {
     "@catppuccin/palette": "^1.4.0",
-    "@ktibow/iconset-material-symbols": "^0.0.1725600996",
+    "@ktibow/iconset-material-symbols": "^0.0.1728668628",
     "@xterm/addon-clipboard": "^0.1.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-image": "^0.8.0",
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/addon-webgl": "^0.18.0",
     "@xterm/xterm": "^5.5.0",
-    "dreamland": "^0.0.24",
+    "dreamland": "github:mercuryworkshop/dreamlandjs",
     "m3-dreamland": "github:mercuryworkshop/m3-dreamland",
     "rollup-plugin-typescript2": "^0.36.0",
     "vite-plugin-dreamland": "^1.2.1"
   },
   "devDependencies": {
     "@iconify/types": "^2.0.0",
-    "@types/node": "^22.7.4",
+    "@types/node": "^22.7.7",
     "rollup-plugin-webbundle": "^0.2.0",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
     "wbn-sign": "^0.2.1"
   }
 }
