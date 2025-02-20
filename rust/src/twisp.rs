@@ -1,9 +1,7 @@
 use async_trait::async_trait;
 use bytes::{BufMut, Bytes, BytesMut};
 use wisp_mux::{
-    extensions::{AnyProtocolExtension, ProtocolExtension, ProtocolExtensionBuilder},
-    ws::{LockedWebSocketWrite, WebSocketRead},
-    WispError,
+    extensions::{AnyProtocolExtension, ProtocolExtension, ProtocolExtensionBuilder}, ws::{Payload, TransportRead, TransportWrite}, WispError
 };
 
 #[derive(Debug)]
@@ -11,8 +9,8 @@ pub struct TWispClientProtocolExtension;
 
 impl TWispClientProtocolExtension {
     pub const ID: u8 = 0xF0;
-	pub const STREAM_TYPE: u8 = 0x03;
-	pub const PACKET_TYPE: u8 = 0xF0;
+    pub const STREAM_TYPE: u8 = 0x03;
+    pub const PACKET_TYPE: u8 = 0xF0;
 
     pub fn create_resize_request(rows: u16, cols: u16) -> Bytes {
         let mut packet = BytesMut::with_capacity(4);
@@ -42,17 +40,18 @@ impl ProtocolExtension for TWispClientProtocolExtension {
 
     async fn handle_handshake(
         &mut self,
-        _: &mut dyn WebSocketRead,
-        _: &LockedWebSocketWrite,
+        _: &mut dyn TransportRead,
+        _: &mut dyn TransportWrite,
     ) -> Result<(), WispError> {
         Ok(())
     }
 
     async fn handle_packet(
         &mut self,
-        _: Bytes,
-        _: &mut dyn WebSocketRead,
-        _: &LockedWebSocketWrite,
+		_: u8,
+        _: Payload,
+        _: &mut dyn TransportRead,
+        _: &mut dyn TransportWrite,
     ) -> Result<(), WispError> {
         Ok(())
     }

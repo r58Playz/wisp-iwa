@@ -1,17 +1,17 @@
 mod twisp;
 mod ws_wrapper;
 
-use std::sync::Arc;
+use std::{pin::Pin, sync::Arc};
 
 use anyhow::{anyhow, bail};
-use bytes::BytesMut;
+use bytes::Bytes;
 use ed25519_dalek::pkcs8::DecodePrivateKey;
 use futures_util::{
     lock::{Mutex, MutexGuard},
     SinkExt, TryStreamExt,
 };
 use js_sys::{Function, Object, Reflect, Uint8Array};
-use sha2::{Digest, Sha512};
+use sha2::{Digest, Sha256};
 use twisp::{TWispClientProtocolExtension, TWispClientProtocolExtensionBuilder};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{future_to_promise, spawn_local};
@@ -22,7 +22,10 @@ use wisp_mux::{
         udp::{UdpProtocolExtension, UdpProtocolExtensionBuilder},
         AnyProtocolExtensionBuilder,
     },
-    ClientMux, MuxStream, StreamType, WispV2Extensions,
+    packet::StreamType,
+    stream::MuxStream,
+    ws::TransportWrite,
+    ClientMux, WispV2Handshake,
 };
 use ws_wrapper::WebSocketWrapper;
 
@@ -42,7 +45,7 @@ pub fn object_set(obj: &Object, key: &JsValue, value: &JsValue) {
 pub struct WispIwa {
     url: String,
     key: Option<SigningKey>,
-    mux: Arc<Mutex<Option<ClientMux>>>,
+    mux: Arc<Mutex<Option<ClientMux<Pin<Box<dyn TransportWrite>>>>>>,
     disconnect: Function,
 }
 
@@ -67,25 +70,25 @@ impl WispIwa {
     }
     async fn replace_mux(
         &self,
-        mut locked: MutexGuard<'_, Option<ClientMux>>,
+        mut locked: MutexGuard<'_, Option<ClientMux<Pin<Box<dyn TransportWrite>>>>>,
     ) -> anyhow::Result<()> {
         let (tx, rx) = WebSocketWrapper::connect(&self.url, &[])?;
         if !tx.wait_for_open().await {
             bail!("ws failed to connect");
         }
 
-        let mut v2 = WispV2Extensions::new(vec![
+        let mut v2 = WispV2Handshake::new(vec![
             AnyProtocolExtensionBuilder::new(UdpProtocolExtensionBuilder),
             AnyProtocolExtensionBuilder::new(TWispClientProtocolExtensionBuilder),
         ]);
 
         if let Some(key) = self.key.clone() {
             v2.add_extension(AnyProtocolExtensionBuilder::new(
-                CertAuthProtocolExtensionBuilder::new_client(key),
+                CertAuthProtocolExtensionBuilder::new_client(Some(key)),
             ));
         }
 
-        let (mux, fut) = ClientMux::create(rx, tx, Some(v2))
+        let (mux, fut) = ClientMux::new(rx.into_read(), tx.into_write(), Some(v2))
             .await?
             .with_required_extensions(&[UdpProtocolExtension::ID, TWispClientProtocolExtension::ID])
             .await?;
@@ -110,11 +113,11 @@ impl WispIwa {
         stream_type: StreamType,
         host: String,
         port: u16,
-    ) -> anyhow::Result<MuxStream> {
+    ) -> anyhow::Result<MuxStream<Pin<Box<dyn TransportWrite>>>> {
         Box::pin(async {
             let locked = self.mux.lock().await;
             if let Some(mux) = locked.as_ref() {
-                let stream = mux.client_new_stream(stream_type, host, port).await?;
+                let stream = mux.new_stream(stream_type, host, port).await?;
                 Ok(stream)
             } else {
                 self.replace_mux(locked).await?;
@@ -130,8 +133,8 @@ impl WispIwa {
     }
     async fn new_tcp(&self, host: String, port: u16) -> anyhow::Result<Object> {
         let stream = self.get_stream(StreamType::Tcp, host, port).await?;
-        let id = stream.stream_id;
-        let (rx, tx) = stream.into_io().into_split();
+        let id = stream.get_stream_id();
+        let (rx, tx) = stream.into_split();
 
         let readable = ReadableStream::from_stream(
             rx.map_ok(|x| Uint8Array::from(x.as_ref()).into())
@@ -141,11 +144,10 @@ impl WispIwa {
 
         let writable = WritableStream::from_sink(
             tx.with(|x: JsValue| async {
-                Ok(BytesMut::from(
+                Ok(Bytes::from(
                     x.dyn_into::<Uint8Array>()
                         .map_err(|_| anyhow!("invalid payload"))?
-                        .to_vec()
-                        .as_slice(),
+                        .to_vec(),
                 ))
             })
             .sink_map_err(|x: anyhow::Error| JsError::from(&*x).into()),
@@ -167,14 +169,14 @@ impl WispIwa {
     async fn new_twisp(&self, term: String) -> anyhow::Result<Object> {
         let stream = self
             .get_stream(
-                StreamType::Unknown(TWispClientProtocolExtension::STREAM_TYPE),
+                StreamType::Other(TWispClientProtocolExtension::STREAM_TYPE),
                 term,
                 0,
             )
             .await?;
-        let id = stream.stream_id;
-        let pext_stream = Arc::new(stream.get_protocol_extension_stream());
-        let (rx, tx) = stream.into_io().into_split();
+        let id = stream.get_stream_id();
+        let pext_stream = Arc::new(Mutex::new(stream.get_protocol_extension_stream()));
+        let (rx, tx) = stream.into_split();
 
         let readable = ReadableStream::from_stream(
             rx.map_ok(|x| Uint8Array::from(x.as_ref()).into())
@@ -184,11 +186,10 @@ impl WispIwa {
 
         let writable = WritableStream::from_sink(
             tx.with(|x: JsValue| async {
-                Ok(BytesMut::from(
+                Ok(Bytes::from(
                     x.dyn_into::<Uint8Array>()
                         .map_err(|_| anyhow!("invalid payload"))?
-                        .to_vec()
-                        .as_slice(),
+                        .to_vec(),
                 ))
             })
             .sink_map_err(|x: anyhow::Error| JsError::from(&*x).into()),
@@ -199,9 +200,11 @@ impl WispIwa {
             let pext_stream = pext_stream.clone();
             JsValue::from(future_to_promise(async move {
                 pext_stream
+                    .lock()
+                    .await
                     .send(
                         TWispClientProtocolExtension::PACKET_TYPE,
-                        TWispClientProtocolExtension::create_resize_request(rows, cols),
+                        TWispClientProtocolExtension::create_resize_request(rows, cols).into(),
                     )
                     .await
                     .map(|_| JsValue::UNDEFINED)
@@ -226,11 +229,7 @@ impl WispIwa {
     }
 
     #[wasm_bindgen(constructor)]
-    pub fn new_wbg(
-        url: String,
-        key: String,
-        disconnect: Function,
-    ) -> Result<WispIwa, JsError> {
+    pub fn new_wbg(url: String, key: String, disconnect: Function) -> Result<WispIwa, JsError> {
         Self::new(url, key, disconnect).map_err(jserror)
     }
     fn new(url: String, key: String, disconnect: Function) -> anyhow::Result<Self> {
@@ -238,9 +237,9 @@ impl WispIwa {
             let signer = ed25519_dalek::SigningKey::from_pkcs8_pem(&key)?;
             let binary_key = signer.verifying_key().to_bytes();
 
-            let mut hasher = Sha512::new();
+            let mut hasher = Sha256::new();
             hasher.update(binary_key);
-            let hash: [u8; 64] = hasher.finalize().into();
+            let hash: [u8; 32] = hasher.finalize().into();
             Some(SigningKey::new_ed25519(Arc::new(signer), hash))
         } else {
             None
